@@ -217,18 +217,16 @@ app.post('/clients', async (req, res) => {
             
 
 
-        res.json({
-            success: true,
-            count: result.recordset.length,
-            data: result.recordset
-        });
+        if (result.recordset.length > 0) {
+            return res.json({ result: "allow" });
+        } else {
+            return res.json({ result: "deny" });
+        }
+         
 
     } catch (error) {
         console.error("Error fetching clients:", error);
-        res.status(500).json({
-            success: false,
-            message: "Server error"
-        });
+        res.json({ result: "deny" });
     }
 });
 

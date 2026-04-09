@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true })); // optional but good
 // ✅ FIXED MQTT URL
 const client = mqtt.connect('mqtt://54.238.155.125:1883',{
     clientId: 'arpit12345',
-  username:'',
+  username:'arpit12345',
   password: "Arpit@123",
 });
 
@@ -201,6 +201,7 @@ app.get('/', (req, res) => {
 app.post('/clients', async (req, res) => {
     try {
         const { username , password } = req.body;
+        console.log("🔥 BODY:", req.body);
 
         
 
@@ -228,6 +229,31 @@ app.post('/clients', async (req, res) => {
         console.error("Error fetching clients:", error);
         res.json({ result: "deny" });
     }
+});
+
+
+app.post('/create-client', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    await pool.request()
+      .input('username', sql.VarChar, username)
+      .input('password', sql.VarChar, password)
+      .query(`
+        INSERT INTO mqtt_user (username, password)
+        VALUES (@username, @password)
+      `);
+
+    res.json({ success: true, message: "Client created" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error creating client" });
+  }
 });
 
 
